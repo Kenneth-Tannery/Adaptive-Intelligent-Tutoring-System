@@ -4,3 +4,6 @@ BKT will output the
 
 Opik will evaluate the AI-generated questions + answers.
 
+Opik will evaluate the AI-generated hints. 
+
+1. Build BKT architecture
