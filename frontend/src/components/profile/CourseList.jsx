@@ -267,6 +267,8 @@ const CourseList = ({ courses, expandedCourseId, setExpandedCourseId }) => (
                   </Typography>
                 </Stack>
                 <Button
+                  component="a"
+                  href="/worksheet/course"
                   variant="contained"
                   sx={{
                     textTransform: 'none',

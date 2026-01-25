@@ -4,6 +4,7 @@ import Workspace from './pages/Workspace.jsx';
 import StudentModelDashboard from './pages/StudentModelDashboard.jsx';
 import Assignments from './pages/Assignments.jsx';
 import Profile from './pages/Profile.jsx';
+import AssignmentWorksheet from './pages/AssignmentWorksheet.jsx';
 
 const App = () => (
   <BrowserRouter>
@@ -11,6 +12,7 @@ const App = () => (
       <Route path="/" element={<StudentModelDashboard />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/worksheet" element={<Workspace />} />
+      <Route path="/worksheet/:assignmentId" element={<AssignmentWorksheet />} />
       <Route path="/student/:studentId/model" element={<StudentModelDashboard />} />
       <Route path="/assignments" element={<Assignments />} />
       <Route path="*" element={<Navigate to="/" replace />} />

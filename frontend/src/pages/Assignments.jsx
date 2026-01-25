@@ -1,140 +1,255 @@
 import React from 'react';
-import { BookOpen, Calendar, CheckCircle2 } from 'lucide-react';
+import {
+  Box,
+  Button,
+  Chip,
+  Container,
+  Divider,
+  Grid,
+  LinearProgress,
+  Paper,
+  Stack,
+  Typography,
+} from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import TopNav from '../components/TopNav.jsx';
+
+const palette = {
+  navy: '#0D173B',
+  sky: '#4AB7E0',
+  sage: '#84AC64',
+  gold: '#E2D64B',
+  teal: '#2D6668',
+  beige: '#C2C19F',
+};
 
 const assignments = [
   {
     id: 'A-101',
     name: 'Linear Equations Skill Builder',
-    assignmentType: 'skill_builder',
+    assignmentType: 'Skill Builder',
     skills: ['6.EE.A.1', '6.EE.A.2'],
     problemCount: 12,
     completionRate: 0.72,
     startTime: '2026-01-24 09:10',
+    sessionDuration: '38m',
   },
   {
     id: 'A-102',
     name: 'Ratio Reasoning Problem Set',
-    assignmentType: 'problem_set',
+    assignmentType: 'Problem Set',
     skills: ['7.RP.A.2'],
     problemCount: 18,
     completionRate: 0.54,
     startTime: '2026-01-25 08:45',
+    sessionDuration: '42m',
   },
   {
     id: 'A-103',
     name: 'Expressions & Properties',
-    assignmentType: 'problem_set',
+    assignmentType: 'Problem Set',
     skills: ['6.EE.A.3'],
     problemCount: 15,
     completionRate: 0.63,
     startTime: '2026-01-23 14:20',
+    sessionDuration: '35m',
   },
 ];
 
 const Assignments = () => (
-  <div
-    className="min-h-screen text-slate-900"
-    style={{
+  <Box
+    sx={{
+      minHeight: '100vh',
       background:
         'linear-gradient(135deg, rgba(255, 251, 235, 0.9) 0%, rgba(255, 241, 242, 0.9) 45%, rgba(238, 242, 255, 0.9) 100%)',
-      color: '#0D173B',
+      color: palette.navy,
     }}
   >
     <TopNav />
-    <div className="max-w-6xl mx-auto p-6">
-      <header className="flex flex-wrap items-center justify-between gap-4 mb-8">
-        <div>
-          <p className="text-xs uppercase tracking-[0.3em] text-slate-400">
-            Assignment Context
-          </p>
-          <h1 className="text-3xl font-bold text-slate-800 mt-2">
-            Assignment + Skill Builder Feed
-          </h1>
-          <p className="text-sm text-slate-500 mt-1">
-            Tracks assignment_type, problem_count, release context, and
-            completion metrics.
-          </p>
-        </div>
-        <div className="flex items-center gap-2 text-xs font-semibold text-indigo-700 bg-indigo-100 px-3 py-2 rounded-full">
-          <Calendar size={16} />
-          Active Assignments
-        </div>
-      </header>
-
-      <div className="grid grid-cols-1 gap-4">
-        {assignments.map((assignment) => (
-          <div
-            key={assignment.id}
-            className="bg-white/80 border border-white/50 rounded-3xl p-6 shadow-sm flex flex-col gap-4"
+    <Container maxWidth="lg" sx={{ py: { xs: 4, md: 5 } }}>
+      <Stack direction={{ xs: 'column', md: 'row' }} spacing={3} alignItems={{ md: 'center' }} justifyContent="space-between" mb={4}>
+        <Box>
+          <Typography
+            variant="caption"
+            sx={{ letterSpacing: '0.35em', textTransform: 'uppercase', color: palette.teal }}
           >
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
-                  {assignment.assignmentType}
-                </p>
-                <h2 className="text-xl font-semibold text-slate-800 mt-2">
+            Assignment Context
+          </Typography>
+          <Typography variant="h4" fontWeight={700} sx={{ color: palette.navy, mt: 1 }}>
+            Assignment + Skill Builder Feed
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+            Track assignment type, problem count, and completion progress for every session.
+          </Typography>
+        </Box>
+        <Chip
+          icon={<CalendarTodayIcon sx={{ color: palette.sky }} />}
+          label="Active Assignments"
+          sx={{
+            bgcolor: 'rgba(74, 183, 224, 0.18)',
+            color: palette.navy,
+            fontWeight: 600,
+            px: 1.5,
+          }}
+        />
+      </Stack>
+
+      <Stack spacing={3}>
+        {assignments.map((assignment) => (
+          <Paper
+            key={assignment.id}
+            variant="outlined"
+            sx={{
+              borderRadius: 3,
+              borderColor: 'rgba(194, 193, 159, 0.6)',
+              backgroundColor: 'rgba(255, 255, 255, 0.92)',
+              boxShadow: '0 12px 30px rgba(15, 23, 42, 0.08)',
+              p: { xs: 2.5, md: 3 },
+            }}
+          >
+            <Stack direction={{ xs: 'column', lg: 'row' }} spacing={3} justifyContent="space-between">
+              <Box>
+                <Typography variant="h6" fontWeight={600} sx={{ color: palette.navy, mt: 1 }}>
                   {assignment.name}
-                </h2>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="text-xs font-semibold text-slate-500">
-                  assignment_id: {assignment.id}
-                </span>
-                <span className="text-xs font-semibold text-slate-500">
-                  start_time: {assignment.startTime}
-                </span>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
-              <div className="bg-white/90 border border-slate-100 rounded-2xl p-4 flex items-center gap-3">
-                <BookOpen className="text-indigo-500" />
-                <div>
-                  <p className="text-xs text-slate-400 uppercase tracking-[0.2em]">
-                    problem_count
-                  </p>
-                  <p className="text-lg font-semibold">
-                    {assignment.problemCount}
-                  </p>
-                </div>
-              </div>
-              <div className="bg-white/90 border border-slate-100 rounded-2xl p-4">
-                <p className="text-xs text-slate-400 uppercase tracking-[0.2em]">
-                  skills
-                </p>
-                <p className="text-sm font-semibold text-slate-700 mt-2">
-                  {assignment.skills.join(', ')}
-                </p>
-              </div>
-              <div className="bg-white/90 border border-slate-100 rounded-2xl p-4">
-                <p className="text-xs text-slate-400 uppercase tracking-[0.2em]">
-                  assignment_completion_rate
-                </p>
-                <p className="text-lg font-semibold text-slate-800 mt-2">
+                </Typography>
+                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} mt={1}>
+                  <Typography variant="caption" color="text.secondary">
+                    Assignment ID: {assignment.id}
+                  </Typography>
+                </Stack>
+              </Box>
+              <Box minWidth={{ xs: '100%', lg: 220 }}>
+                <Typography variant="caption" sx={{ letterSpacing: '0.2em', color: palette.teal }}>
+                  Completion Rate
+                </Typography>
+                <Typography variant="h4" fontWeight={700} sx={{ color: palette.navy, mt: 0.5 }}>
                   {Math.round(assignment.completionRate * 100)}%
-                </p>
-              </div>
-              <div className="bg-white/90 border border-slate-100 rounded-2xl p-4 flex items-center gap-3">
-                <CheckCircle2 className="text-emerald-500" />
-                <div>
-                  <p className="text-xs text-slate-400 uppercase tracking-[0.2em]">
-                    session_duration
-                  </p>
-                  <p className="text-lg font-semibold text-slate-800">38m</p>
-                </div>
-              </div>
-            </div>
+                </Typography>
+                <LinearProgress
+                  variant="determinate"
+                  value={assignment.completionRate * 100}
+                  sx={{
+                    mt: 1,
+                    height: 8,
+                    borderRadius: 6,
+                    backgroundColor: 'rgba(194, 193, 159, 0.35)',
+                    '& .MuiLinearProgress-bar': {
+                      backgroundColor: palette.sky,
+                    },
+                  }}
+                />
+                <Button
+                  component={RouterLink}
+                  to={`/worksheet/${assignment.id}`}
+                  variant="contained"
+                  sx={{
+                    mt: 2,
+                    textTransform: 'none',
+                    borderRadius: 999,
+                    backgroundColor: palette.sky,
+                    '&:hover': { backgroundColor: palette.sky },
+                  }}
+                >
+                  Start
+                </Button>
+              </Box>
+            </Stack>
 
-            <div className="flex justify-between text-xs text-slate-500">
-              <span>Feature coverage: assignment_type, release_date, due_date</span>
-              <span>Skill builder filter ready</span>
-            </div>
-          </div>
+            <Divider sx={{ my: 3, borderColor: 'rgba(194, 193, 159, 0.4)' }} />
+
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={3}>
+                <Paper
+                  variant="outlined"
+                  sx={{
+                    borderRadius: 2,
+                    borderColor: 'rgba(226,232,240,0.9)',
+                    p: 2,
+                    height: '100%',
+                  }}
+                >
+                  <Stack direction="row" spacing={1.5} alignItems="center">
+                    <MenuBookIcon sx={{ color: palette.sky }} />
+                    <Box>
+                      <Typography variant="caption" color="text.secondary" sx={{ letterSpacing: '0.2em' }}>
+                        Problem Count
+                      </Typography>
+                      <Typography variant="h6" fontWeight={600} sx={{ color: palette.navy, mt: 0.5 }}>
+                        {assignment.problemCount}
+                      </Typography>
+                    </Box>
+                  </Stack>
+                </Paper>
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <Paper
+                  variant="outlined"
+                  sx={{
+                    borderRadius: 2,
+                    borderColor: 'rgba(226,232,240,0.9)',
+                    p: 2,
+                    height: '100%',
+                  }}
+                >
+                  <Typography variant="caption" color="text.secondary" sx={{ letterSpacing: '0.2em' }}>
+                    Skills
+                  </Typography>
+                  <Typography variant="body2" fontWeight={600} sx={{ color: palette.navy, mt: 1 }}>
+                    {assignment.skills.join(', ')}
+                  </Typography>
+                </Paper>
+              </Grid>
+              <Grid item xs={12} md={3}>
+                <Paper
+                  variant="outlined"
+                  sx={{
+                    borderRadius: 2,
+                    borderColor: 'rgba(226,232,240,0.9)',
+                    p: 2,
+                    height: '100%',
+                  }}
+                >
+                  <Typography variant="caption" color="text.secondary" sx={{ letterSpacing: '0.2em' }}>
+                    Session Duration
+                  </Typography>
+                  <Typography variant="h6" fontWeight={600} sx={{ color: palette.navy, mt: 0.5 }}>
+                    {assignment.sessionDuration}
+                  </Typography>
+                </Paper>
+              </Grid>
+              <Grid item xs={12} md={2}>
+                <Paper
+                  variant="outlined"
+                  sx={{
+                    borderRadius: 2,
+                    borderColor: 'rgba(226,232,240,0.9)',
+                    p: 2,
+                    height: '100%',
+                  }}
+                >
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <CheckCircleIcon sx={{ color: palette.sage }} />
+                    <Box>
+                      <Typography variant="caption" color="text.secondary" sx={{ letterSpacing: '0.2em' }}>
+                        Status
+                      </Typography>
+                      <Typography variant="body2" fontWeight={600} sx={{ color: palette.navy, mt: 0.5 }}>
+                        In Progress
+                      </Typography>
+                    </Box>
+                  </Stack>
+                </Paper>
+              </Grid>
+            </Grid>
+
+          </Paper>
         ))}
-      </div>
-    </div>
-  </div>
+      </Stack>
+    </Container>
+  </Box>
 );
 
 export default Assignments;
