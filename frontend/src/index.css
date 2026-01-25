@@ -1,0 +1,163 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@600;700&display=swap');
+@import "tailwindcss";
+
+/* 1. Base Styles & Typography */
+:root {
+  --glass-bg: rgba(255, 255, 255, 0.4);
+  --glass-border: rgba(194, 193, 159, 0.35);
+  --ink: #0D173B;
+  --navy: #0D173B;
+  --sky: #4AB7E0;
+  --sky-dark: #2F96BE;
+  --sage: #84AC64;
+  --gold: #E2D64B;
+  --teal: #2D6668;
+  --beige: #C2C19F;
+  --beige-light: rgba(194, 193, 159, 0.25);
+}
+
+body {
+  margin: 0;
+  font-family: 'Space Grotesk', 'Syne', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: var(--ink);
+  background: fixed linear-gradient(135deg, #f7f5ee 0%, #eaf7fb 45%, #edf2ff 100%);
+}
+
+/* Palette Overrides for Tailwind utility classes */
+.text-indigo-500,
+.text-indigo-600,
+.text-indigo-700 {
+  color: var(--sky);
+}
+
+.bg-indigo-500,
+.bg-indigo-600,
+.bg-indigo-700 {
+  background-color: var(--sky);
+}
+
+.hover\:bg-indigo-700:hover {
+  background-color: var(--sky-dark);
+}
+
+.bg-indigo-100 {
+  background-color: rgba(74, 183, 224, 0.18);
+}
+
+.bg-indigo-50 {
+  background-color: rgba(74, 183, 224, 0.08);
+}
+
+.border-indigo-200 {
+  border-color: rgba(74, 183, 224, 0.35);
+}
+
+.text-indigo-200 {
+  color: rgba(225, 244, 247, 0.9);
+}
+
+.bg-indigo-600\/90 {
+  background-color: rgba(45, 102, 104, 0.9);
+}
+
+.shadow-indigo-200 {
+  --tw-shadow-color: rgba(74, 183, 224, 0.35);
+}
+
+.bg-emerald-400,
+.bg-emerald-500 {
+  background-color: var(--sage);
+}
+
+.text-emerald-700 {
+  color: #5f7e48;
+}
+
+.bg-green-400 {
+  background-color: var(--sage);
+}
+
+.bg-amber-400,
+.bg-amber-300 {
+  background-color: var(--gold);
+}
+
+.text-amber-900 {
+  color: #5b5212;
+}
+
+.text-amber-700 {
+  color: #7a6d1c;
+}
+
+.bg-amber-100 {
+  background-color: rgba(226, 214, 75, 0.3);
+}
+
+.bg-teal-500 {
+  background-color: var(--teal);
+}
+
+.text-slate-800,
+.text-slate-900 {
+  color: var(--navy);
+}
+
+.border-slate-100 {
+  border-color: rgba(194, 193, 159, 0.4);
+}
+
+.bg-white\/80 {
+  background-color: rgba(255, 255, 255, 0.85);
+}
+
+/* 2. Glassmorphism Utilities */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+}
+
+/* 3. Agentic Animation: 'Pulse' for Interventions */
+@keyframes soft-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+.animate-bounce-subtle {
+  animation: soft-bounce 3s ease-in-out infinite;
+}
+
+/* 4. Custom Scrollbar for Chat Sidebar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.3);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(99, 102, 241, 0.6);
+}
+
+/* 5. Neumorphic Input Focus */
+.soft-input {
+  transition: all 0.3s ease;
+  box-shadow: inset 2px 2px 5px rgba(0,0,0,0.05);
+}
+
+.soft-input:focus {
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+  background: white;
+}
