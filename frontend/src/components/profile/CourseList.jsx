@@ -10,8 +10,10 @@ import {
   Typography,
   Paper,
 } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 
 const palette = {
@@ -267,16 +269,16 @@ const CourseList = ({ courses, expandedCourseId, setExpandedCourseId }) => (
                   </Typography>
                 </Stack>
                 <Button
-                  component="a"
-                  href="/worksheet/course"
+                  component={RouterLink}
+                  to={`/worksheet/${course.id}`}
                   variant="contained"
                   sx={{
                     textTransform: 'none',
-                    borderRadius: 999,
+                    borderRadius: 2,
                     backgroundColor: palette.sky,
                     '&:hover': { backgroundColor: palette.sky },
                   }}
-                  endIcon={<ArrowForwardIcon />}
+                  endIcon={<PlayCircleOutlineIcon />}
                 >
                   Resume
                 </Button>
