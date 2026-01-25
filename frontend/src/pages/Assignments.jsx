@@ -33,7 +33,14 @@ const assignments = [
 ];
 
 const Assignments = () => (
-  <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-cyan-50 text-slate-900">
+  <div
+    className="min-h-screen text-slate-900"
+    style={{
+      background:
+        'linear-gradient(135deg, rgba(255, 251, 235, 0.9) 0%, rgba(255, 241, 242, 0.9) 45%, rgba(238, 242, 255, 0.9) 100%)',
+      color: '#0D173B',
+    }}
+  >
     <TopNav />
     <div className="max-w-6xl mx-auto p-6">
       <header className="flex flex-wrap items-center justify-between gap-4 mb-8">

@@ -1,14 +1,15 @@
-import React from 'react';
-import { ArrowUpRight, Gauge, LineChart, Sparkles } from 'lucide-react';
+import React, { useState } from 'react';
+import { Pin, PlayCircle, Sparkles } from 'lucide-react';
+import { Dialog, Transition } from '@headlessui/react';
 import TopNav from '../components/TopNav.jsx';
 import { useStudentModel } from '../state/studentModelContext.jsx';
+import WorksheetPanel from '../components/WorksheetPanel.jsx';
 
 const formatPercent = (value) => `${Math.round(value * 100)}%`;
 
 const StudentModelDashboard = () => {
-  const { model, totalHints } = useStudentModel();
-  const fractionOfHintsUsed =
-    totalHints === 0 ? 0 : model.hintCount / totalHints;
+  const { model } = useStudentModel();
+  const [worksheetOpen, setWorksheetOpen] = useState(false);
 
   const learningCards = [
     {
@@ -28,62 +29,33 @@ const StudentModelDashboard = () => {
     },
   ];
 
-  const helpSeekingCards = [
+  const progressCards = [
     {
-      label: 'hint_count',
-      value: model.hintCount,
-      note: 'Hints used this problem',
+      label: 'Current Skill',
+      value: model.skillName,
+      meta: `prior_skill_mastery ${Math.round(model.priorSkillMastery * 100)}%`,
     },
     {
-      label: 'fraction_of_hints_used',
-      value: formatPercent(fractionOfHintsUsed),
-      note: 'Hint usage ratio',
+      label: 'Learning Velocity',
+      value: `${Math.round(model.learningVelocity * 100)}%`,
+      meta: 'Rate of change in BKT score',
     },
     {
-      label: 'hint_abuse_score',
-      value: fractionOfHintsUsed > 0.8 ? 'High' : 'Normal',
-      note: 'Trigger when hints > 80%',
-    },
-  ];
-
-  const timePatternCards = [
-    {
-      label: 'time_on_task',
+      label: 'Time on Task',
       value: `${Math.floor(model.timeOnTask / 60)}m ${model.timeOnTask % 60}s`,
-      note: 'Current problem duration',
-    },
-    {
-      label: 'persistence_score',
-      value: (model.timeOnTask / Math.max(model.attemptCount, 1)).toFixed(1),
-      note: 'time_on_task / attempt_count',
-    },
-    {
-      label: 'time_between_attempts',
-      value: '42s (avg)',
-      note: 'Derived from student_logs',
-    },
-  ];
-
-  const errorCards = [
-    {
-      label: 'consecutive_errors',
-      value: model.errorCount,
-      note: 'Rolling 3 attempt window',
-    },
-    {
-      label: 'error_after_hint',
-      value: model.hintCount > 0 && model.errorCount > 0 ? 'Yes' : 'No',
-      note: 'Hint used but still incorrect',
-    },
-    {
-      label: 'wrong_response_count',
-      value: model.errorCount,
-      note: 'student_logs aggregation',
+      meta: 'Latest problem session',
     },
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-teal-50 text-slate-900">
+    <div
+      className="min-h-screen text-slate-900"
+      style={{
+        background:
+          'linear-gradient(135deg, rgba(255, 251, 235, 0.9) 0%, rgba(255, 241, 242, 0.9) 45%, rgba(238, 242, 255, 0.9) 100%)',
+        color: '#0D173B',
+      }}
+    >
       <TopNav />
       <div className="max-w-6xl mx-auto p-6">
         <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
@@ -98,17 +70,67 @@ const StudentModelDashboard = () => {
               Live snapshot for student {model.studentId} on {model.skillName}
             </p>
           </div>
-          <div className="flex items-center gap-3">
-            <span className="px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 text-xs font-semibold">
-              ZPD: {model.zpdStatus}
-            </span>
-            <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold">
-              Opportunities to learn: {model.attemptCount + 4}
-            </span>
-          </div>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setWorksheetOpen(true)}
+            className="px-4 py-2 rounded-full bg-indigo-600 text-white text-xs font-semibold shadow-md"
+          >
+            Open Worksheet
+          </button>
         </div>
+      </div>
 
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+      <Transition appear show={worksheetOpen} as={React.Fragment}>
+        <Dialog as="div" className="relative z-40" onClose={setWorksheetOpen}>
+          <Transition.Child
+            as={React.Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm" />
+          </Transition.Child>
+
+          <div className="fixed inset-0 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-6">
+              <Transition.Child
+                as={React.Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <Dialog.Panel className="w-full max-w-6xl rounded-3xl bg-white/90 p-6 shadow-2xl border border-white/40">
+                  <div className="flex items-center justify-between gap-4 mb-4">
+                    <div>
+                      <Dialog.Title className="text-lg font-bold text-slate-800">
+                        Student Worksheet
+                      </Dialog.Title>
+                      <p className="text-xs text-slate-500 mt-1">
+                        Adaptive problem viewer + Buddy support in one view.
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setWorksheetOpen(false)}
+                      className="text-xs font-semibold text-slate-500 hover:text-slate-700"
+                    >
+                      Close
+                    </button>
+                  </div>
+                  <WorksheetPanel embedded />
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
+
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           {learningCards.map((card) => (
             <div
               key={card.label}
@@ -125,106 +147,66 @@ const StudentModelDashboard = () => {
           ))}
         </section>
 
-        <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-white/70 border border-white/50 rounded-3xl p-6 shadow-sm">
-            <div className="flex items-center gap-3 mb-4">
-              <LineChart className="text-indigo-500" />
-              <h2 className="text-lg font-semibold text-slate-800">
-                Learning Rate Indicators
-              </h2>
-            </div>
-            <div className="space-y-4">
-              <div className="flex justify-between text-xs text-slate-500">
-                <span>improvement_rate</span>
-                <span>+0.12 (rolling mean)</span>
-              </div>
-              <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
-                <div className="h-full bg-indigo-500 w-[65%]" />
-              </div>
-              <div className="flex justify-between text-xs text-slate-500">
-                <span>mastery_speed</span>
-                <span>9 attempts to streak</span>
-              </div>
-              <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
-                <div className="h-full bg-emerald-400 w-[52%]" />
-              </div>
-            </div>
+
+        <section className="mt-8">
+          <div className="flex items-center gap-3 mb-4">
+            <Sparkles className="text-rose-500" />
+            <h2 className="text-lg font-semibold text-slate-800">
+              Student Profile Snapshot
+            </h2>
+            <span className="text-xs text-slate-400">
+              Moved from profile view
+            </span>
           </div>
 
-          <div className="bg-white/70 border border-white/50 rounded-3xl p-6 shadow-sm">
-            <div className="flex items-center gap-3 mb-4">
-              <Sparkles className="text-amber-500" />
-              <h2 className="text-lg font-semibold text-slate-800">
-                Help-Seeking Behavior
-              </h2>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {helpSeekingCards.map((card) => (
-                <div
-                  key={card.label}
-                  className="bg-white/80 border border-slate-100 rounded-2xl p-4"
-                >
-                  <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
-                    {card.label}
-                  </p>
-                  <p className="text-lg font-semibold text-slate-800 mt-2">
-                    {card.value}
-                  </p>
-                  <p className="text-[11px] text-slate-500 mt-1">{card.note}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-          <div className="bg-white/70 border border-white/50 rounded-3xl p-6 shadow-sm">
-            <div className="flex items-center gap-3 mb-4">
-              <Gauge className="text-teal-500" />
-              <h2 className="text-lg font-semibold text-slate-800">
-                Time-on-Task Patterns
-              </h2>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {timePatternCards.map((card) => (
-                <div
-                  key={card.label}
-                  className="bg-white/80 border border-slate-100 rounded-2xl p-4"
-                >
-                  <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
-                    {card.label}
-                  </p>
-                  <p className="text-lg font-semibold text-slate-800 mt-2">
-                    {card.value}
-                  </p>
-                  <p className="text-[11px] text-slate-500 mt-1">{card.note}</p>
-                </div>
-              ))}
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {progressCards.map((card) => (
+              <div
+                key={card.label}
+                className="bg-white/90 border border-white/60 rounded-2xl p-5 shadow-sm"
+              >
+                <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
+                  {card.label}
+                </p>
+                <p className="text-lg font-semibold text-slate-800 mt-2">
+                  {card.value}
+                </p>
+                <p className="text-xs text-slate-500 mt-1">{card.meta}</p>
+              </div>
+            ))}
           </div>
 
-          <div className="bg-white/70 border border-white/50 rounded-3xl p-6 shadow-sm">
-            <div className="flex items-center gap-3 mb-4">
-              <ArrowUpRight className="text-rose-500" />
-              <h2 className="text-lg font-semibold text-slate-800">
-                Error Patterns
-              </h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+            <div className="bg-white/90 border border-white/60 rounded-2xl p-5 shadow-sm">
+              <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
+                Recent lesson
+              </p>
+              <p className="text-lg font-semibold text-slate-800 mt-2">
+                Solving linear equations
+              </p>
+              <p className="text-xs text-slate-500 mt-1">
+                mastery: {Math.round(model.priorSkillMastery * 100)}%
+              </p>
+              <button className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-semibold">
+                Resume
+                <PlayCircle size={16} />
+              </button>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {errorCards.map((card) => (
-                <div
-                  key={card.label}
-                  className="bg-white/80 border border-slate-100 rounded-2xl p-4"
-                >
-                  <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
-                    {card.label}
-                  </p>
-                  <p className="text-lg font-semibold text-slate-800 mt-2">
-                    {card.value}
-                  </p>
-                  <p className="text-[11px] text-slate-500 mt-1">{card.note}</p>
-                </div>
-              ))}
+
+            <div className="bg-white/90 border border-white/60 rounded-2xl p-5 shadow-sm">
+              <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
+                Previously learned
+              </p>
+              <h3 className="text-lg font-semibold text-slate-800 mt-2">
+                Algebra Essentials
+              </h3>
+              <p className="text-sm text-slate-500 mt-1">
+                Completed · 12 lessons · mastery 96%
+              </p>
+              <button className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-indigo-700">
+                Pin to top
+                <Pin size={16} />
+              </button>
             </div>
           </div>
         </section>
@@ -234,3 +216,4 @@ const StudentModelDashboard = () => {
 };
 
 export default StudentModelDashboard;
+

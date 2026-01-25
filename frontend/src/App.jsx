@@ -3,17 +3,16 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import Workspace from './pages/Workspace.jsx';
 import StudentModelDashboard from './pages/StudentModelDashboard.jsx';
 import Assignments from './pages/Assignments.jsx';
-import TeacherAnalytics from './pages/TeacherAnalytics.jsx';
-import Ops from './pages/Ops.jsx';
+import Profile from './pages/Profile.jsx';
 
 const App = () => (
   <BrowserRouter>
     <Routes>
-      <Route path="/" element={<Workspace />} />
+      <Route path="/" element={<StudentModelDashboard />} />
+      <Route path="/profile" element={<Profile />} />
+      <Route path="/worksheet" element={<Workspace />} />
       <Route path="/student/:studentId/model" element={<StudentModelDashboard />} />
       <Route path="/assignments" element={<Assignments />} />
-      <Route path="/teacher/:teacherId/analytics" element={<TeacherAnalytics />} />
-      <Route path="/ops" element={<Ops />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   </BrowserRouter>

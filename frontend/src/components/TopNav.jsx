@@ -1,12 +1,10 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
+import { User } from 'lucide-react';
 
 const links = [
-  { to: '/', label: 'Workspace' },
-  { to: '/student/S-1042/model', label: 'Student Model' },
+  { to: '/', label: 'Dashboard' },
   { to: '/assignments', label: 'Assignments' },
-  { to: '/teacher/T-01/analytics', label: 'Teacher Analytics' },
-  { to: '/ops', label: 'Model Ops' },
 ];
 
 const TopNav = () => (
@@ -23,23 +21,41 @@ const TopNav = () => (
           </p>
         </div>
       </div>
-      <nav className="flex flex-wrap gap-2 text-xs font-semibold">
-        {links.map((link) => (
-          <NavLink
-            key={link.to}
-            to={link.to}
-            className={({ isActive }) =>
-              `px-3 py-2 rounded-full transition ${
-                isActive
-                  ? 'bg-indigo-600 text-white shadow-sm'
-                  : 'bg-white/70 text-slate-600 hover:bg-white'
-              }`
-            }
-          >
-            {link.label}
-          </NavLink>
-        ))}
-      </nav>
+      <div className="flex items-center gap-3">
+        <nav className="flex flex-wrap gap-2 text-xs font-semibold">
+          {links.map((link) => (
+            <NavLink
+              key={link.to}
+              to={link.to}
+              className={({ isActive }) =>
+                `px-3 py-2 rounded-full transition ${
+                  isActive
+                    ? 'bg-indigo-600 text-white shadow-sm'
+                    : 'bg-white/70 text-slate-600 hover:bg-white'
+                }`
+              }
+            >
+              {link.label}
+            </NavLink>
+          ))}
+        </nav>
+        <NavLink
+          to="/profile"
+          className={({ isActive }) =>
+            `w-9 h-9 rounded-full flex items-center justify-center border transition ${
+              isActive
+                ? 'bg-indigo-600 text-white'
+                : 'bg-white/80 text-slate-600 hover:bg-white'
+            }`
+          }
+          style={{
+            borderColor: 'rgba(74, 183, 224, 0.7)',
+          }}
+          aria-label="Open profile"
+        >
+          <User size={18} />
+        </NavLink>
+      </div>
     </div>
   </div>
 );
