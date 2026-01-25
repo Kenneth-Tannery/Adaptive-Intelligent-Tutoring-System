@@ -15,6 +15,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import TopNav from '../components/TopNav.jsx';
 
 const palette = {
@@ -79,7 +80,7 @@ const Assignments = () => (
             Assignment Context
           </Typography>
           <Typography variant="h4" fontWeight={700} sx={{ color: palette.navy, mt: 1 }}>
-            Assignment + Skill Builder Feed
+            Assignments
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
             Track assignment type, problem count, and completion progress for every session.
@@ -152,6 +153,7 @@ const Assignments = () => (
                     backgroundColor: palette.sky,
                     '&:hover': { backgroundColor: palette.sky },
                   }}
+                  endIcon={<ArrowForwardIcon />}
                 >
                   Start
                 </Button>
@@ -237,7 +239,7 @@ const Assignments = () => (
                         Status
                       </Typography>
                       <Typography variant="body2" fontWeight={600} sx={{ color: palette.navy, mt: 0.5 }}>
-                        In Progress
+                        Not Started
                       </Typography>
                     </Box>
                   </Stack>
