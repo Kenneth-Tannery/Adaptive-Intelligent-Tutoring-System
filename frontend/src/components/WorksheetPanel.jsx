@@ -21,26 +21,36 @@ const HINTS = [
   'The answer is 5.',
 ];
 
+const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
 const buildFallbackProblem = (skillName, zpdStatus) => {
   if (skillName === '6.EE.A.1') {
-    const harder = zpdStatus === 'stretch';
+    const harder = zpdStatus === 'stretch' || zpdStatus === 'challenge';
+    const a = harder ? randomInt(3, 6) : randomInt(1, 3);
+    const x = harder ? randomInt(3, 9) : randomInt(2, 6);
+    const b = harder ? randomInt(2, 9) : randomInt(1, 6);
+    const c = a * x + b;
     return {
       prompt: 'Solve for x.',
-      latex: harder ? '3x + 7 = 25' : '2x + 5 = 15',
-      answer: harder ? '6' : '5',
+      latex: `${a}x + ${b} = ${c}`,
+      answer: String(x),
     };
   }
   if (skillName === '7.RP.A.2') {
+    const k = randomInt(2, 8);
     return {
       prompt: 'Find the constant of proportionality.',
-      latex: 'y = 4x',
-      answer: '4',
+      latex: `y = ${k}x`,
+      answer: String(k),
     };
   }
+  const x = randomInt(5, 15);
+  const b = randomInt(3, 10);
+  const c = x + b;
   return {
     prompt: 'Solve for x.',
-    latex: 'x - 9 = 12',
-    answer: '21',
+    latex: `x + ${b} = ${c}`,
+    answer: String(x),
   };
 };
 
@@ -52,20 +62,36 @@ const zpdStyles = {
   stretch: 'bg-amber-100 text-amber-700 border-amber-200',
 };
 
+const toNumber = (value) => {
+  if (!value) {
+    return null;
+  }
+  const trimmed = value.trim();
+  if (!/^[-+]?\d+(\.\d+)?$/.test(trimmed)) {
+    return null;
+  }
+  const parsed = Number(trimmed);
+  return Number.isFinite(parsed) ? parsed : null;
+};
+
 const WorksheetPanel = ({ embedded = false }) => {
   const {
     model,
     totalHints,
     recordAttempt,
     resetHints,
+    resetAttempts,
     setBktSnapshot,
     tickTimeOnTask,
     useHint,
+    startIntervention,
+    recordRecoveryAttempt,
   } = useStudentModel();
 
   const [problem, setProblem] = useState(() =>
     buildFallbackProblem(model.skillName, model.zpdStatus)
   );
+  const [problemSeed, setProblemSeed] = useState(0);
   const [answerInput, setAnswerInput] = useState('');
   const [buddyInput, setBuddyInput] = useState('');
   const [chatMessages, setChatMessages] = useState([
@@ -102,7 +128,8 @@ const WorksheetPanel = ({ embedded = false }) => {
           setBktSnapshot({
             priorSkillMastery: data.prior_skill_mastery,
             learningVelocity: data.learning_velocity,
-            attemptCount: data.attempt_count,
+            interventionActive: data.intervention_active,
+            recoveryStreak: data.recovery_streak,
           });
         }
       } catch (error) {
@@ -120,6 +147,7 @@ const WorksheetPanel = ({ embedded = false }) => {
         const data = await generateProblem({
           skillName: model.skillName,
           zpdStatus: model.zpdStatus,
+          studentId: model.studentId,
         });
         if (active && data?.latex) {
           setProblem({
@@ -128,12 +156,17 @@ const WorksheetPanel = ({ embedded = false }) => {
             answer: data.answer ?? '',
           });
           resetHints();
+          resetAttempts();
         } else if (active) {
           setProblem(buildFallbackProblem(model.skillName, model.zpdStatus));
+          resetHints();
+          resetAttempts();
         }
       } catch (error) {
         if (active) {
           setProblem(buildFallbackProblem(model.skillName, model.zpdStatus));
+          resetHints();
+          resetAttempts();
         }
       } finally {
         if (active) {
@@ -146,7 +179,14 @@ const WorksheetPanel = ({ embedded = false }) => {
     return () => {
       active = false;
     };
-  }, [model.skillName, model.zpdStatus, resetHints]);
+  }, [
+    model.skillName,
+    model.studentId,
+    model.zpdStatus,
+    problemSeed,
+    resetHints,
+    resetAttempts,
+  ]);
 
   const handleSubmit = async () => {
     const cleanedInput = answerInput.trim();
@@ -154,9 +194,18 @@ const WorksheetPanel = ({ embedded = false }) => {
       return;
     }
 
-    const isCorrect = problem.answer
-      ? cleanedInput === problem.answer
+    const expected = problem.answer?.trim() ?? '';
+    const expectedNum = toNumber(expected);
+    const actualNum = toNumber(cleanedInput);
+    const isCorrect = expected
+      ? expectedNum !== null && actualNum !== null
+        ? Math.abs(expectedNum - actualNum) < 1e-6
+        : cleanedInput.trim().toLowerCase() === expected.toLowerCase()
       : cleanedInput.length > 0;
+
+    const nextAttemptCount = model.attemptCount + 1;
+    const wasInterventionActive = model.interventionActive;
+    const triggeredIntervention = !wasInterventionActive && nextAttemptCount > 3;
 
     recordAttempt({ correct: isCorrect });
 
@@ -165,7 +214,8 @@ const WorksheetPanel = ({ embedded = false }) => {
         student_id: model.studentId,
         skill_name: model.skillName,
         answer: cleanedInput,
-        attempt_count: model.attemptCount + 1,
+        correct: isCorrect,
+        attempt_count: nextAttemptCount,
         time_on_task: model.timeOnTask,
         hints_used: model.hintCount,
       });
@@ -173,13 +223,28 @@ const WorksheetPanel = ({ embedded = false }) => {
         setBktSnapshot({
           priorSkillMastery: response.prior_skill_mastery,
           learningVelocity: response.learning_velocity,
+          interventionActive: response.intervention_active,
+          recoveryStreak: response.recovery_streak,
         });
       }
     } catch (error) {
       // Backend optional in early frontend prototyping.
     }
 
+    if (triggeredIntervention) {
+      startIntervention();
+    } else if (wasInterventionActive) {
+      recordRecoveryAttempt({
+        correct: isCorrect,
+        hintsUsed: model.hintCount,
+        maxHints: totalHints,
+      });
+    }
+
     setAnswerInput('');
+    if (isCorrect || triggeredIntervention) {
+      setProblemSeed((prev) => prev + 1);
+    }
   };
 
   const handleHintClick = () => {
@@ -253,14 +318,18 @@ const WorksheetPanel = ({ embedded = false }) => {
         embedded ? 'p-6' : 'p-8'
       }`}
     >
-      {model.attemptCount > 3 && (
-        <div className="absolute top-4 right-4 bg-amber-100 text-amber-900 border border-amber-200 rounded-2xl p-4 text-xs shadow-lg max-w-[240px]">
+      {model.interventionActive && (
+        <div className="absolute top-4 right-4 bg-slate-100/70 text-slate-500 border border-dashed border-slate-200 rounded-2xl p-4 text-xs shadow-sm max-w-[260px] opacity-70">
           <div className="flex items-start gap-2">
-            <Zap size={18} className="shrink-0" />
+            <Zap size={18} className="shrink-0 text-slate-400" />
             <div>
-              <p className="font-semibold">Intervention triggered</p>
+              <p className="font-semibold">Support mode</p>
               <p className="opacity-80">
-                attempt_count &gt; 3 → offer a new strategy.
+                New question at a gentler level. Complete 3 in a row without
+                using all hints to unlock mastery gains.
+              </p>
+              <p className="mt-2 text-[11px] uppercase tracking-[0.2em] text-slate-400">
+                streak {model.recoveryStreak}/3
               </p>
             </div>
           </div>
@@ -403,7 +472,7 @@ const WorksheetPanel = ({ embedded = false }) => {
               <div>
                 <h3 className="text-white font-bold">Buddy Agent</h3>
                 <p className="text-indigo-200 text-xs">
-                  student_logs · intervention layer
+                  student_logs - intervention layer
                 </p>
               </div>
             </div>
