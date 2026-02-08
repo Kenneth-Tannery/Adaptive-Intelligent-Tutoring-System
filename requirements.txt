@@ -1,2 +1,6 @@
-opik==1.9.96
+﻿opik==1.9.96
 openai==2.15.0
+fastapi==0.115.6
+uvicorn[standard]==0.30.6
+psycopg[binary]==3.2.3
+python-dotenv==1.0.1
