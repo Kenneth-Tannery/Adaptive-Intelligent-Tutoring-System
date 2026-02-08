@@ -17,8 +17,9 @@ export const submitAnswer = async (payload) => {
   return response.data;
 };
 
-export const generateProblem = async ({ skillName, zpdStatus }) => {
+export const generateProblem = async ({ skillName, zpdStatus, studentId }) => {
   const response = await apiClient.post('/llm/problem', {
+    student_id: studentId,
     skill_name: skillName,
     zpd_status: zpdStatus,
   });
@@ -27,5 +28,19 @@ export const generateProblem = async ({ skillName, zpdStatus }) => {
 
 export const sendOpikTrace = async (payload) => {
   const response = await apiClient.post('/opik/trace', payload);
+  return response.data;
+};
+
+export const fetchCourses = async ({ studentId }) => {
+  const response = await apiClient.get('/courses', {
+    params: { student_id: studentId },
+  });
+  return response.data;
+};
+
+export const fetchAssignments = async ({ studentId }) => {
+  const response = await apiClient.get('/assignments', {
+    params: { student_id: studentId },
+  });
   return response.data;
 };

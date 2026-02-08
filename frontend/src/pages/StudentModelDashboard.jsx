@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { Pin, PlayCircle, Sparkles } from 'lucide-react';
 import { Dialog, Transition } from '@headlessui/react';
 import TopNav from '../components/TopNav.jsx';
 import { useStudentModel } from '../state/studentModelContext.jsx';
 import WorksheetPanel from '../components/WorksheetPanel.jsx';
+import { fetchBktSnapshot, fetchCourses } from '../services/api.js';
 
 const formatPercent = (value) => `${Math.round(value * 100)}%`;
 
 const StudentModelDashboard = () => {
-  const { model } = useStudentModel();
+  const { model, setBktSnapshot, setSkillContext } = useStudentModel();
   const [worksheetOpen, setWorksheetOpen] = useState(false);
 
   const learningCards = [
@@ -44,14 +45,100 @@ const StudentModelDashboard = () => {
     },
   ];
 
-  const coursesInProgress = [
-    { id: 'course-1', title: 'Learn C#', module: 'Learn C#: Logic', progress: 0.3 },
-    { id: 'course-2', title: 'Learn Python 3', module: 'Python fundamentals', progress: 0.21 },
-    { id: 'course-3', title: 'Analyze Data with SQL', module: 'Query basics', progress: 0.16 },
-    { id: 'course-4', title: 'Learn C', module: 'Pointers and memory', progress: 0.25 },
+  const [coursesInProgress, setCoursesInProgress] = useState([]);
+
+  const fallbackCourses = [
+    {
+      id: 'math-foundations',
+      title: 'Math Foundations',
+      module: 'Linear Equations',
+      progress: 0.32,
+    },
+    {
+      id: 'ratios-proportions',
+      title: 'Ratios & Proportions',
+      module: 'Unit Rates',
+      progress: 0.18,
+    },
+    {
+      id: 'exponents-powers',
+      title: 'Exponents & Powers',
+      module: 'Powers of 10',
+      progress: 0.24,
+    },
+    {
+      id: 'number-sense',
+      title: 'Number Sense',
+      module: 'Integers & Operations',
+      progress: 0.12,
+    },
   ];
 
   const recentWorksheetId = 'A-101';
+
+  useEffect(() => {
+    let active = true;
+    const loadCourses = async () => {
+      try {
+        const data = await fetchCourses({ studentId: model.studentId });
+        if (!active) {
+          return;
+        }
+        if (Array.isArray(data) && data.length > 0) {
+          setCoursesInProgress(data);
+          const nextCourse =
+            data.find((course) => course.status === 'In Progress') ??
+            data.find((course) => course.status === 'Assigned') ??
+            data[0];
+          if (nextCourse?.target_skill && nextCourse.target_skill !== model.skillName) {
+            setSkillContext({ skillName: nextCourse.target_skill });
+          }
+          return;
+        }
+      } catch (error) {
+        // Keep fallback content when API is unavailable.
+      }
+      if (active) {
+        setCoursesInProgress(fallbackCourses);
+      }
+    };
+
+    if (model.studentId) {
+      loadCourses();
+    }
+    return () => {
+      active = false;
+    };
+  }, [model.studentId, model.snapshotVersion, model.skillName, setSkillContext]);
+
+  useEffect(() => {
+    let active = true;
+    const loadSnapshot = async () => {
+      try {
+        const data = await fetchBktSnapshot({
+          studentId: model.studentId,
+          skillName: model.skillName,
+        });
+        if (active && data) {
+          setBktSnapshot({
+            priorSkillMastery: data.prior_skill_mastery,
+            learningVelocity: data.learning_velocity,
+            interventionActive: data.intervention_active,
+            recoveryStreak: data.recovery_streak,
+          });
+        }
+      } catch (error) {
+        // Snapshot optional for dashboard.
+      }
+    };
+
+    if (model.studentId && model.skillName) {
+      loadSnapshot();
+    }
+    return () => {
+      active = false;
+    };
+  }, [model.studentId, model.skillName, setBktSnapshot]);
 
 
   return (
