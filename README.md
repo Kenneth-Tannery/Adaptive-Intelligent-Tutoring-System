@@ -23,3 +23,6 @@ This ensures the AI provides the **Minimum Necessary Support** to encourage inde
 ### 3. Real-Time Pedagogical Interventions
 The API serves as a monitoring station that constantly calculates **Learning Velocity**. By comparing current performance against historical data in the cleaned ASSISTments dataset, the AI can detect a **"Wheel-Spinning"** state—where a student is putting in effort but not making progress. 
 * **Proactive Action:** The API triggers an intervention where the AI buddy interrupts the loop to offer a different approach, such as a visual analogy or a simplified sub-problem, ensuring the student never stays stuck for too long.
+
+### 4. Support Mode and Mastery Pause
+When a student struggles on a question (more than 3 attempts), the system switches to an easier question and enters a support mode. While support mode is active, mastery gains are paused. The student must answer 3 questions in a row correctly without using all available hints to resume mastery growth. The max hint threshold defaults to 3 and can be configured with `MAX_HINTS_PER_QUESTION`.
